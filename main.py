@@ -1,8 +1,27 @@
-import json
+import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDockWidget, QTextEdit, 
-                            QMenuBar, QMenu, QFileDialog, QMessageBox)
+                            QMenuBar, QMenu, QFileDialog, QMessageBox, QSizePolicy)
 from PyQt5.QtCore import Qt, QSettings, QByteArray
 from PyQt5.QtGui import QColor, QPalette
+
+class CustomDockWidget(QDockWidget):
+    def __init__(self, title, parent=None):
+        super().__init__(title, parent)
+        self.setFeatures(QDockWidget.DockWidgetMovable | 
+                        QDockWidget.DockWidgetFloatable |
+                        QDockWidget.DockWidgetClosable |
+                        QDockWidget.DockWidgetVerticalTitleBar)
+        
+    def event(self, event):
+        # Handle floating state changes
+        if event.type() == event.NonClientAreaMouseButtonDblClick:
+            self.setFloating(not self.isFloating())
+            if self.isFloating():
+                # Adjust floating window behavior
+                self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | 
+                                   Qt.WindowTitleHint | Qt.WindowMinMaxButtonsHint)
+                self.show()
+        return super().event(event)
 
 class AdvancedDockingSystem(QMainWindow):
     def __init__(self):
@@ -265,7 +284,7 @@ class AdvancedDockingSystem(QMainWindow):
         """Save state when closing"""
         self.save_window_state()
         super().closeEvent(event)
-
+        
 if __name__ == "__main__":
     app = QApplication([])
     window = AdvancedDockingSystem()
